@@ -1,1 +1,137 @@
-!function(i){function t(){n=!0}function a(t){setTimeout(function(){n=!1,t&&t()},200)}var e=i("#search-form-wrap"),n=!1,o=(i("#nav-search-btn").on("click",function(){n||(t(),e.addClass("on"),a(function(){i(".search-form-input").focus()}))}),i(".search-form-input").on("blur",function(){t(),e.removeClass("on"),a()}),i("body").on("click",function(){i(".article-share-box.on").removeClass("on")}).on("click",".article-share-link",function(t){t.stopPropagation();var t=i(this),a=t.attr("data-url"),e=encodeURIComponent(a),n="article-share-box-"+t.attr("data-id"),t=t.offset();if(i("#"+n).length){if((o=i("#"+n)).hasClass("on"))return void o.removeClass("on")}else{var n=['<div id="'+n+'" class="article-share-box">','<input class="article-share-input" value="'+a+'">','<div class="article-share-links">','<a href="https://twitter.com/intent/tweet?url='+e+'" class="article-share-twitter" target="_blank" title="Twitter"></a>','<a href="https://www.facebook.com/sharer.php?u='+e+'" class="article-share-facebook" target="_blank" title="Facebook"></a>','<a href="http://pinterest.com/pin/create/button/?url='+e+'" class="article-share-pinterest" target="_blank" title="Pinterest"></a>','<a href="https://plus.google.com/share?url='+e+'" class="article-share-google" target="_blank" title="Google+"></a>',"</div>","</div>"].join(""),o=i(n);i("body").append(o)}i(".article-share-box.on").hide(),o.css({top:t.top+25,left:t.left}).addClass("on")}).on("click",".article-share-box",function(t){t.stopPropagation()}).on("click",".article-share-box-input",function(){i(this).select()}).on("click",".article-share-box-link",function(t){t.preventDefault(),t.stopPropagation(),window.open(this.href,"article-share-box-window-"+Date.now(),"width=500,height=450")}),i(".article-entry").each(function(t){i(this).find("img").each(function(){var t;i(this).parent().hasClass("fancybox")||((t=this.alt)&&i(this).after('<span class="caption">'+t+"</span>"),i(this).wrap('<a href="'+this.src+'" title="'+t+'" class="fancybox"></a>'))}),i(this).find(".fancybox").each(function(){i(this).attr("rel","article"+t)})}),i.fancybox&&i(".fancybox").fancybox(),i("#container")),s=!1;i("#main-nav-toggle").on("click",function(){s||(s=!0,o.toggleClass("mobile-nav-on"),setTimeout(function(){s=!1},200))}),i("#wrap").on("click",function(){!s&&o.hasClass("mobile-nav-on")&&o.removeClass("mobile-nav-on")})}(jQuery);
+(function($){
+  // Search
+  var $searchWrap = $('#search-form-wrap'),
+    isSearchAnim = false,
+    searchAnimDuration = 200;
+
+  var startSearchAnim = function(){
+    isSearchAnim = true;
+  };
+
+  var stopSearchAnim = function(callback){
+    setTimeout(function(){
+      isSearchAnim = false;
+      callback && callback();
+    }, searchAnimDuration);
+  };
+
+  $('#nav-search-btn').on('click', function(){
+    if (isSearchAnim) return;
+
+    startSearchAnim();
+    $searchWrap.addClass('on');
+    stopSearchAnim(function(){
+      $('.search-form-input').focus();
+    });
+  });
+
+  $('.search-form-input').on('blur', function(){
+    startSearchAnim();
+    $searchWrap.removeClass('on');
+    stopSearchAnim();
+  });
+
+  // Share
+  $('body').on('click', function(){
+    $('.article-share-box.on').removeClass('on');
+  }).on('click', '.article-share-link', function(e){
+    e.stopPropagation();
+
+    var $this = $(this),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      id = 'article-share-box-' + $this.attr('data-id'),
+      offset = $this.offset();
+
+    if ($('#' + id).length){
+      var box = $('#' + id);
+
+      if (box.hasClass('on')){
+        box.removeClass('on');
+        return;
+      }
+    } else {
+      var html = [
+        '<div id="' + id + '" class="article-share-box">',
+          '<input class="article-share-input" value="' + url + '">',
+          '<div class="article-share-links">',
+            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+          '</div>',
+        '</div>'
+      ].join('');
+
+      var box = $(html);
+
+      $('body').append(box);
+    }
+
+    $('.article-share-box.on').hide();
+
+    box.css({
+      top: offset.top + 25,
+      left: offset.left
+    }).addClass('on');
+  }).on('click', '.article-share-box', function(e){
+    e.stopPropagation();
+  }).on('click', '.article-share-box-input', function(){
+    $(this).select();
+  }).on('click', '.article-share-box-link', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+
+    window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+  });
+
+  // Caption
+  $('.article-entry').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+
+      var alt = this.alt;
+
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+
+  if ($.fancybox){
+    $('.fancybox').fancybox();
+  }
+
+  // Mobile nav
+  var $container = $('#container'),
+    isMobileNavAnim = false,
+    mobileNavAnimDuration = 200;
+
+  var startMobileNavAnim = function(){
+    isMobileNavAnim = true;
+  };
+
+  var stopMobileNavAnim = function(){
+    setTimeout(function(){
+      isMobileNavAnim = false;
+    }, mobileNavAnimDuration);
+  }
+
+  $('#main-nav-toggle').on('click', function(){
+    if (isMobileNavAnim) return;
+
+    startMobileNavAnim();
+    $container.toggleClass('mobile-nav-on');
+    stopMobileNavAnim();
+  });
+
+  $('#wrap').on('click', function(){
+    if (isMobileNavAnim || !$container.hasClass('mobile-nav-on')) return;
+
+    $container.removeClass('mobile-nav-on');
+  });
+})(jQuery);
